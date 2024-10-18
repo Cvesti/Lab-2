@@ -89,7 +89,7 @@ print(f"Количество записей с длинными названия
 print("   ")
 
 # По автору до 2016
-author_books = search_books_by_author('books.csv', 'Людмила Петрановская') #Вписать имя автора
+author_books = search_books_by_author('books.csv', 'Людмила Петрановская') #Вписать имя автора колонка "Автор"
 for author, books in author_books.items():
     print(f"Автор: {author}")
     for book, date in books:
