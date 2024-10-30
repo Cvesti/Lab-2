@@ -2,7 +2,13 @@ import csv
 import random
 import xml.etree.ElementTree as ET
 
-# Длинные названия >30 символов
+# Константы
+BOOKS_CSV_FILENAME = 'books.csv'
+CURRENCY_XML_FILENAME = 'currency.xml'
+BIBLIOGRAPHY_OUTPUT_FILE = 'bibliography.txt'
+YEAR_LIMIT = 2016
+
+# Длинные названия > 30 символов
 def count_long_titles(filename):
     count = 0
     with open(filename, newline='', encoding='utf-8') as csvfile:
@@ -13,13 +19,13 @@ def count_long_titles(filename):
                 count += 1
     return count
 
-# Автор до 2016
-def search_books_by_author(filename, author, year_limit=2016):
+# По автору до 2016
+def search_books_by_author(filename, author, year_limit=YEAR_LIMIT):
     results = {}
     with open(filename, 'r', encoding='utf-8') as file:
         reader = csv.DictReader(file, delimiter=';')
         for row in reader:
-            author_in_file = row['Автор'].strip().lower()
+            author_in_file = row['Автор (ФИО)'].strip().lower()
             input_author = author.strip().lower()
 
             if input_author in author_in_file:
@@ -38,11 +44,8 @@ def search_books_by_author(filename, author, year_limit=2016):
 
     return results
 
-
-
-
 # Реализовать генератор библиографических ссылок для 20 записей В ОТДЕЛЬНЫЙ ФАЙЛ
-def generate_bibliographic_references(filename, output_file):
+def generate_bibliographic_references(filename, output_file=BIBLIOGRAPHY_OUTPUT_FILE):
     references = []
     with open(filename, newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile, delimiter=';')
@@ -51,7 +54,7 @@ def generate_bibliographic_references(filename, output_file):
         sampled_rows = random.sample(all_rows, min(20, len(all_rows)))
         for row in sampled_rows:
             try:
-                year = row[6].split('-')[0]
+                year = row[6].split('-')[0].split()[0]
                 reference = f"{row[4]}. {row[1]} - {year}"
                 references.append(reference)
             except IndexError:
@@ -75,33 +78,28 @@ def parse_currency_xml(filename):
     
     return names, values
 
-
-books_csv_filename = 'books.csv'
-currency_xml_filename = 'currency.xml'
-
 #############################
 
-
 # Подсчет длинных названий
-long_titles_count = count_long_titles(books_csv_filename)
+long_titles_count = count_long_titles(BOOKS_CSV_FILENAME)
 print(f"Количество записей с длинными названиями: {long_titles_count}")
 
 print("   ")
 
 # По автору до 2016
-author_books = search_books_by_author('books.csv', 'Людмила Петрановская') #Вписать имя автора колонка "Автор"
+author_books = search_books_by_author(BOOKS_CSV_FILENAME, 'Людмила Петрановская')
 for author, books in author_books.items():
     print(f"Автор: {author}")
     for book, date in books:
         print(f"  Книга: {book}, Дата поступления: {date}")
 print("   ")
 
-# Реализовать генератор библиографических ссылок для 20 записей В ОТДЕЛЬНЫЙ ФАЙЛ(Файл заменяется каждый запуск кода)
-generate_bibliographic_references(books_csv_filename, 'bibliography.txt')
+# Реализовать генератор библиографических ссылок для 20 записей В ОТДЕЛЬНЫЙ ФАЙЛ
+generate_bibliographic_references(BOOKS_CSV_FILENAME)
 print("   ")
 
 # Распарсить файл и извлечь данные "Два отдельных списка Name и Value"
-names, values = parse_currency_xml(currency_xml_filename)
+names, values = parse_currency_xml(CURRENCY_XML_FILENAME)
 print(f"Имена валют: {names}")
 print("   ")
 print(f"Значения валют: {values}")
